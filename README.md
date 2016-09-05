@@ -1,5 +1,4 @@
-#  Konvertering fra SLD til Mapbox GL
-## Kodedokumentasjon for: `SLD_to_JSON.js`
+#  Converting from SLD to Mapbox GL
 
 `SLD_to_JSON.js` is a script for converting FKB-data in SLD-format to the Mapbox GL style specification.  
 The SLD-format is an XML-schema for describing the appearance of map layers, while the Mapbox GL specification is a JSON schema.
