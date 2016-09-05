@@ -5,7 +5,7 @@ The SLD-format is an XML-schema for describing the appearance of map layers, whi
 
 The script is not a complete SLD to Mapbox GL converter, but it is supports the files we had that needed to be converted. Therefor there might be attributes in the SLD standard that is not supported, simply because it wasn't in any if the files we needed to convert.
 
-## Innhold
+## Content
 1. [The Mapbox GL specification](#The Mapbox GL specification)
 2. [The SLD-files and the conversion](#The SLD-files and the conversion)
 3. [Layout of the code](#Layout of the code)
@@ -50,7 +50,7 @@ Example of valid Mapbox GL format:
 -	Type describes if it is a polygon (fill), line, text(symbol) or point(symbol)  
 -	Source-layer refers to the vector tile layer-id
 -	Minzoom and maxzoom defines what zoom level the style is visible
--	"paint» and "layout» are objects with different attributes that describes how the layer is drawn/how it will look
+-	"paint» and "layout» are objects with different attributes that describes how the layer is drawn (how it will look)
 
 <a name="The SLD-files and the conversion"</a>
 ## The SLD-files and the conversion
