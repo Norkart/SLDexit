@@ -1,0 +1,23 @@
+{
+  "name": "sld_to_mapboxgl",
+  "version": "1.0.0",
+  "description": "Script to convert from SLD (Styled Layer Descriptor) to Mapbox GL",
+  "main": "SLD_to_JSON.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Norkart/SLD_to_MapboxGL.git"
+  },
+  "author": "Mathilde Ørstavik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Norkart/SLD_to_MapboxGL/issues"
+  },
+  "homepage": "https://github.com/Norkart/SLD_to_MapboxGL#readme",
+  "dependencies": {
+    "underscore": "^1.8.3",
+    "xml2js": "^0.4.17"
+  }
+}

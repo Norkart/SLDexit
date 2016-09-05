@@ -1,0 +1,25 @@
+{ "version": 7, "name": "MapboxGLStyle2", "sources": { "norkart": { "type": "vector", "url": "mapbox://andersob.3ukdquxr" } }, "glyphs": "mapbox://fontstack/{fontstack}/{range}.pbf", "sprite": "https://www.mapbox.com/mapbox-gl-styles/sprites/sprite", "layers": [ { "id": "background", "type": "background", "paint": { "background-color": "rgb(237, 234, 235)" } }
+,
+{
+    "id": "line-FKB_ElvBekk_midtlinje",
+    "type": "line",
+    "source": "norkart",
+    "source-layer": "FKB_ElvBekk_midtlinje",
+    "minzoom": 16,
+    "maxzoom": 20,
+    "paint": {
+        "line-color": "#87BEF1",
+        "line-width": 0.1
+    }
+},
+{
+    "id": "fill-FKB_ElvBekk_flate",
+    "type": "fill",
+    "source": "norkart",
+    "source-layer": "FKB_ElvBekk_flate",
+    "minzoom": 16,
+    "maxzoom": 20,
+    "paint": {
+        "fill-color": "#B2D8FA"
+    }
+}]}

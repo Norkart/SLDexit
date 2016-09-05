@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<StyledLayerDescriptor version="1.0.0"
+xsi:schemaLocation="http://www.opengis.net/sld StyledLayerDescriptor.xsd"
+xmlns="http://www.opengis.net/sld"
+xmlns:ogc="http://www.opengis.net/ogc"
+xmlns:xlink="http://www.w3.org/1999/xlink"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<NamedLayer>
+  <Name>FKB_ElvBekk</Name>
+    <UserStyle>
+    <Title>FKB_ElvBekk</Title>
+
+	<!-- FKB_ElvBekk_midtlinje -->
+    <FeatureTypeStyle>
+		<Rule>
+			<Name>FKB_ElvBekk_midtlinje</Name>
+			<ogc:Filter>
+					<ogc:And>
+						<ogc:PropertyIsEqualTo>
+							<ogc:PropertyName>geometritype</ogc:PropertyName>
+							<ogc:Literal>3</ogc:Literal>
+						</ogc:PropertyIsEqualTo>
+						<ogc:Or>
+							<ogc:Not>
+								<ogc:PropertyIsEqualTo>
+									<ogc:PropertyName>medium</ogc:PropertyName>
+									<ogc:Literal>U</ogc:Literal>
+								</ogc:PropertyIsEqualTo>
+							</ogc:Not>
+							<ogc:PropertyIsNull>
+								<ogc:PropertyName>medium</ogc:PropertyName>
+							</ogc:PropertyIsNull>
+						</ogc:Or>
+					</ogc:And>
+			</ogc:Filter>
+			<MinScaleDenominator>1</MinScaleDenominator>
+			<MaxScaleDenominator>8501</MaxScaleDenominator>
+			<LineSymbolizer>
+				<Stroke>
+					<CssParameter name="stroke">
+						#<ogc:Function name="env">
+							<ogc:Literal>aebm</ogc:Literal>
+							<ogc:Literal>87BEF1</ogc:Literal>
+						</ogc:Function>
+					</CssParameter>
+					<CssParameter name="stroke-width">0.1</CssParameter>
+				</Stroke>
+			</LineSymbolizer>
+		</Rule>
+    </FeatureTypeStyle>
+
+    <!-- FKB_ElvBekk_flate -->
+    <FeatureTypeStyle>
+		<Rule>
+			<Name>FKB_ElvBekk_flate</Name>
+			<ogc:Filter>
+					<ogc:And>
+						<ogc:PropertyIsEqualTo>
+							<ogc:PropertyName>geometritype</ogc:PropertyName>
+							<ogc:Literal>10</ogc:Literal>
+						</ogc:PropertyIsEqualTo>
+						<ogc:Or>
+							<ogc:Not>
+								<ogc:PropertyIsEqualTo>
+									<ogc:PropertyName>medium</ogc:PropertyName>
+									<ogc:Literal>U</ogc:Literal>
+								</ogc:PropertyIsEqualTo>
+							</ogc:Not>
+							<ogc:PropertyIsNull>
+								<ogc:PropertyName>medium</ogc:PropertyName>
+							</ogc:PropertyIsNull>
+						</ogc:Or>
+					</ogc:And>
+			</ogc:Filter>
+			<MinScaleDenominator>1</MinScaleDenominator>
+			<MaxScaleDenominator>8501</MaxScaleDenominator>
+			<PolygonSymbolizer>
+				<Fill>
+					 <CssParameter name="fill">
+						#<ogc:Function name="env">
+							<ogc:Literal>aff</ogc:Literal>
+							<ogc:Literal>B2D8FA</ogc:Literal>
+						</ogc:Function>
+					</CssParameter>
+				</Fill>
+			</PolygonSymbolizer>
+		</Rule>
+    </FeatureTypeStyle>
+
+  </UserStyle>
+</NamedLayer>
+</StyledLayerDescriptor>

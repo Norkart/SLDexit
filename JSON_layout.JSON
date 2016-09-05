@@ -1,0 +1,22 @@
+var mapstyle{
+  "version": 7,
+  "name": "MapboxGLStyle2",
+  "sources": {
+    "norkart": {
+      "type": "vector",
+      "url": "mapbox://andersob.3ukdquxr"
+    }
+  },
+  "glyphs": "mapbox://fontstack/{fontstack}/{range}.pbf",
+  "sprite": "https://www.mapbox.com/mapbox-gl-styles/sprites/sprite",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint":
+      {
+        "background-color": "rgb(237, 234, 235)"
+      }
+    },
+  ]
+};
