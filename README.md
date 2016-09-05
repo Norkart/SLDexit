@@ -202,7 +202,7 @@ In addition to the shadow files that were translated directly, I also made some 
 I was not able to find how to draw Depression curves in the correct way.
 The photo the the left shows how it should have been drawn, and is drawn in SLD, while the photo to the right shows how it is drawn in Mapbox GL. It could be possible to solve this by using "line-image" in Mapbox GL.
 
-![sld forsenkningskurve](images/forsenkningskurver.png)
+![sld forsenkningskurve](images/forsekningskurver.png)
 
 Even when symbols are placed in the end of the JSON file, and should be drawn on top of everything else, some of the symbols are still hidden behind other elements. As far as I can tell, it is solved by adding `icon-allow-overlap:true` to the layers in question. An improvement to the script could be to add this automatically to all symbol layers, but this could maybe have an unwanted effect to some symbols.
 
