@@ -11,7 +11,7 @@ The script is not a complete SLD to Mapbox GL converter, but it is supports the 
 3. [Layout of the code](#Layout of the code)
 4. [Result and manual changes](#Result and manual changes)
 5. [Unsolved problems](#Unsolved problems)
-6. [Running the code](#Running the code)
+6. [Running the script](#Running the script)
 7. [Useful links](#Useful links)
 
 <a name="The Mapbox GL specification"</a>
