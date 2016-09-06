@@ -46,7 +46,7 @@ Example of valid Mapbox GL format:
 }
 ```
 
-- Id is a *unique* identificator for the layer
+- Id is a *unique*
 -	Type describes if it is a polygon (fill), line, text(symbol) or point(symbol)  
 -	Source-layer refers to the vector tile layer-id
 -	Minzoom and maxzoom defines what zoom level the style is visible
@@ -185,7 +185,7 @@ The exponential base of the interpolation curve. It controls the rate at which t
 An array of zoom level and value pairs. The value can be a number or a color value for color properties.*
 
 #### Extra layers
- Something that was missing in the SLD files, and that I could not find anywhere, was border lines on some of the buildings. Therefore I had to manually create som layers afterwards, and the id of these were:
+ Something that was missing in the SLD files, and that I could not find anywhere, was border lines on some of the buildings. Therefore I had to manually create some layers afterwards, and the id of these were:
 - line-FKB_Bygning_1
 - line-FKB_Bygning_2
 - line-FKB_Bygning_3
@@ -205,7 +205,7 @@ The photo the the left shows how it should have been drawn, and is drawn in SLD,
 
 Even when symbols are placed in the end of the JSON file, and should be drawn on top of everything else, some of the symbols are still hidden behind other elements. As far as I can tell, it is solved by adding `icon-allow-overlap:true` to the layers in question. An improvement to the script could be to add this automatically to all symbol layers, but this could maybe have an unwanted effect to some symbols.
 
-Icons are not added to all layers of type **symbol**, and not images that should fill polyongs,`fill-image`, since I was not sure what icons should be used. Mapbox do have sprite sheets available, but they do not cover everything.
+Icons are not added to all layers of type **symbol**, and not images that should fill polygons,`fill-image`, since I was not sure what icons should be used. Mapbox do have sprite sheets available, but they do not cover everything.
 
 
 <a name="Running the code"></a>
@@ -216,7 +216,7 @@ When downloading the code, remember to run `npm install` to install dependencies
 When running the code you can choose to either convert one file, or to convert all files in a give folder. This is dependent on if you are running
 `parseAllFiles()`, or just `parse_sld_to_rules_tag()`. You also need to fill in some specific fields, and the instruction for this is added in the script.
 
-When the script is finished, to files are created; `Result.JSON` and `errorFiles.txt`. `Result.JSON` is the result of the convertion, and the  `errorFiles.txt` is a file with a list over files that could not be converted, if any.
+When the script is finished, to files are created; `Result.JSON` and `errorFiles.txt`. `Result.JSON` is the result of the conversion, and the  `errorFiles.txt` is a file with a list over files that could not be converted, if any.
 
 <a name="Useful links"></a>
 ## Useful links
