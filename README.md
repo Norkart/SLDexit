@@ -208,15 +208,16 @@ Even when symbols are placed in the end of the JSON file, and should be drawn on
 Icons are not added to all layers of type **symbol**, and not images that should fill polygons,`fill-image`, since I was not sure what icons should be used. Mapbox do have sprite sheets available, but they do not cover everything.
 
 
-<a name="Running the code"></a>
+<a name="Running the Script"></a>
 
-## Running the code
-When downloading the code, remember to run `npm install` to install dependencies.
+## Running the Script
+1. Run `npm install` to install dependencies.
 
-When running the code you can choose to either convert one file, or to convert all files in a give folder. This is dependent on if you are running
-`parseAllFiles()`, or just `parse_sld_to_rules_tag()`. You also need to fill in some specific fields, and the instruction for this is added in the script.
+2. You can choose to either convert one file, or to convert all files in a given folder. This is dependent on if you are commented out `parseAllFiles()`, or `parse_sld_to_rules_tag()`. You also need to fill in some specific fields, and the instruction for this is added in the script.
 
-When the script is finished, to files are created; `Result.JSON` and `errorFiles.txt`. `Result.JSON` is the result of the conversion, and the  `errorFiles.txt` is a file with a list over files that could not be converted, if any.
+3. Run the script with node.
+
+4. When the script is finished, two files are created; `Result.JSON` and `errorFiles.txt`. `Result.JSON` is the result of the conversion, and the  `errorFiles.txt` is a file with names of files that could not be converted, if any.
 
 <a name="Useful links"></a>
 ## Useful links
