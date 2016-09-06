@@ -6,7 +6,7 @@ var fs = require('fs');
 var xml2js = require('xml2js');
 var parser = new xml2js.Parser();
 var nrToParse=1; //nr to check if last file is converted - if so the end of json file is written!
-var nrParsed; //Nr of parsed files so far
+var nrParsed=0; //Nr of parsed files so far
 
 
 //-----------------------TODO-------------------------------------
@@ -21,16 +21,16 @@ var type="vector";//vector, raster, GeoJSON ++
 
 //You can run the script either from one file or a directory of files. Comment out the one you don't want
 
-DIRECTORY_PATH=""; //add path for directory where all files you want to convert are placed
-//parseAllFiles(DIRECTORY_PATH); //parse all files in given directory
+DIRECTORY_PATH="exampleMultipleLayers"; //add path for directory where all files you want to convert are placed
+parseAllFiles(DIRECTORY_PATH); //parse all files in given directory
 
-SPECIFIC_FILE_PATH="FKB_ElvBekk.xml"//path of specific file
-parse_sld_to_rules_tag(SPECIFIC_FILE_PATH); //Parse only one file
+SPECIFIC_FILE_PATH="exampleData/FKB_ElvBekk.xml"//path of specific file
+//parse_sld_to_rules_tag(SPECIFIC_FILE_PATH); //Parse only one file
 
 
 //-------------------------------------------------------------//
 
-BASE_PATH = ""; //Add your basepath for where files are written to
+RESULT_PATH = ""; //Add path you want result files written to
 
 VALID_SYMBOLIZERS=['LineSymbolizer', 'TextSymbolizer','PolygonSymbolizer', 'PointSymbolizer'];
 VALID_ATTR_TAGS=['Stroke','Fill','Label','Font', 'Halo', 'Mark', 'Size','Geometry', 'Graphic'];
@@ -130,7 +130,7 @@ function scale_to_zoom(scale){
   return 20;
 }
 
-var parseAllFiles = function (path) {
+function parseAllFiles(path){
   fs.readdir(path, function (error,list){
     if(error){
       console.log("error");
@@ -143,35 +143,42 @@ var parseAllFiles = function (path) {
     var i;
     nrToParse=filelist.length;
     for (var i = 0; i < filelist.length; i++) {
-      parse_sld_to_rules_tag(filelist[i]);
+      parse_sld_to_rules_tag(path+"/"+filelist[i]);
     }
   });
   setTimeout(function () { //not sure what time will be sufficent in large datasets
   }, 5000);
 }
 
-
 //parses the xml and finds symbolizer-element and type
 function parse_sld_to_rules_tag(file){
-  fs.readFile("FKB_ElvBekk.xml", function(err, data){
+  fs.readFile(file, function(err, data){
     if(err){
       console.log(err);
     }
     parseFile(data, file);
   });
-  // writeEndOfJSON();
+  nrParsed++;
+  if(nrParsed===nrToParse){
+    //TODO: Find a way to remove the timeout? Problem is that there is no way to know how many layers will be written to the result json
+    //and you can therefor not do a check if the last is written or not. You cannot send a callback since it should only be written the last time.
+    setTimeout(function(){
+      writeEndOfJSON();
+    }, 500);
+  }
 }
 
 function writeStartOfJSON(){
-  var top = '{ "version": 7, "name": "'+styleSpecName+'", "sources": { "'+sourceName+'"+: { "type": "vector", "url": "'+sourceUrl+'" } }, "glyphs": "mapbox://fontstack/{fontstack}/{range}.pbf", "sprite": "https://www.mapbox.com/mapbox-gl-styles/sprites/sprite", "layers": [ { "id": "background", "type": "background", "paint": { "background-color": "rgb(237, 234, 235)" } }';
+  var top = '{ "version": 7, "name": "'+styleSpecName+'", "sources": { "'+sourceName+'": { "type": "vector", "url": "'+sourceUrl+'" } }, "glyphs": "mapbox://fontstack/{fontstack}/{range}.pbf", "sprite": "https://www.mapbox.com/mapbox-gl-styles/sprites/sprite", "layers": [ { "id": "background", "type": "background", "paint": { "background-color": "rgb(237, 234, 235)" } }';
   //  var top = '{ "version": 7, "name": "MapboxGLStyle2", "sources": { "norkart": { "type": "vector", "url": "mapbox://andersob.3ukdquxr" } }, "glyphs": "mapbox://fontstack/{fontstack}/{range}.pbf", "sprite": "https://www.mapbox.com/mapbox-gl-styles/sprites/sprite", "layers": [ { "id": "background", "type": "background", "paint": { "background-color": "rgb(237, 234, 235)" } }';
-  fs.writeFile(BASE_PATH+'\\Result.JSON', top+'\n');
-  fs.writeFile(BASE_PATH+'\\errorFiles.txt','Files that could not be converted:' + '\n');
+  fs.writeFile(RESULT_PATH+'\\Result.JSON', top+'\n');
+  fs.writeFile(RESULT_PATH+'\\errorFiles.txt','Files that could not be converted:' + '\n');
 }
 
 function writeEndOfJSON(){
+  console.log("writing end of json");
   var end=']}';
-  fs.appendFile(BASE_PATH+'\\Result.JSON', end);
+  fs.appendFile(RESULT_PATH+'\\Result.JSON', end);
 }
 
 parseFile=function(data, file){
@@ -231,24 +238,19 @@ function writeJSON(symbTag, type, name, minzoom, maxzoom, file){
       styleObj2=make_JSON(name, 'line', obj, minzoom, maxzoom);
       print1=JSON.stringify(styleObj1, null, 4);
       print2=JSON.stringify(styleObj2, null, 4);
-      fs.appendFile(BASE_PATH+'\\Result.JSON', ',\n'+print1);
-      fs.appendFile(BASE_PATH+'\\Result.JSON', ',\n'+print2);
-      //Check if last file parsed: if so, add the end of the json file
-      nrParsed++;
-      console.log(nrParsed);
-      if(nrToParse===nrParsed){
-        writeEndOfJSON();
-      }
+      console.log("Writing converted");
+      fs.appendFile(RESULT_PATH+'\\Result.JSON', ',\n'+print1);
+      fs.appendFile(RESULT_PATH+'\\Result.JSON', ',\n'+print2);
     }
     else{
       styleObj=make_JSON(name, convType, cssObj, minzoom, maxzoom);
       print=JSON.stringify(styleObj, null, 4);
-      fs.appendFile(BASE_PATH+'\\Result.JSON', ',\n'+print);
+      fs.appendFile(RESULT_PATH+'\\Result.JSON', ',\n'+print);
     }
   }
   catch(err){
     //writes a file with all the sld-files with errors
-    fs.appendFile(BASE_PATH+'\\errorFiles.txt',file+'-'+name + '\n');
+    fs.appendFile(RESULT_PATH+'\\errorFiles.txt',file+'-'+name + '\n');
   }
 }
 

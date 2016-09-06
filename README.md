@@ -96,7 +96,7 @@ Label|text-field
 TextSymbolizer-Halo-Fill-fill|text-halo-color
 TextSymbolizer-Fill-fill|text-color
 
-Some of the attributes i did not find a translation for:
+Some of the attributes I did not find a translation for:
 -	Font-style (could be added through text-font by adding bold after name of the font)
 -	Font-weight
 
@@ -104,7 +104,7 @@ Some of the attributes i did not find a translation for:
 #### Attribute values:
 An important part of the code was to extract the attribute values. I wrote a general method for this: `getCssParameters(symbTag, validAttrTag, type, outerTag)`. This method returns an array with attribute names and attribute values.
 
-The method is written based on the structure i could find in most of the SLD files I had. These files had the attribute information i a css-parameter-tagg, within a symbolizer-tag with an inner tag that defined the type, example `<stroke>` or `<fill>`.
+The method is written based on the structure I could find in most of the SLD files I had. These files had the attribute information in a css-parameter-tagg, within a symbolizer-tag with an inner tag that defined the type, example `<stroke>` or `<fill>`.
 
 ```xml
 <LineSymbolizer>
@@ -138,7 +138,7 @@ An example is the code underneath, that shows an example where the layout is ver
     </Radius>
 ```
 
-To handle these exceptions, i made the method `getObjFromDiffAttr()`. Here I wrote completely separate methods for the exceptions.
+To handle these exceptions, I created the method `getObjFromDiffAttr()`. Here I wrote completely separate methods for the exceptions.
 
 <a name="Layout of the code"></a>
 ## Layout of the code
@@ -149,7 +149,7 @@ To handle these exceptions, i made the method `getObjFromDiffAttr()`. Here I wro
 <a name="Order of the layers"></a>
 ## Order of the layers
 
-In Mapbox GL the layers are drawn in the order they are defined in the JSON file. This order has to be defined manually after the creation of the JSON file. Therefor a script was created to reorder the layers. The file `layers_ordering.txt`, contains a list with the id-names for the layers, where the names are written in the order they should be drawn. By running the code `create_rightOrder.js` the layers in the input file are sorted in the same order as they are defined in `layers_ordering.txt`.
+In Mapbox GL the layers are drawn in the order they are defined in the JSON file. This order has to be defined manually after the creation of the JSON file. Therefor a script was created to reorder the layers. The file `layers_ordering.txt`, contains a list with the id-names for the layers, where the names are written in the order they should be drawn. By running the code `create_correct_layerorder.js` the layers in the input file are sorted in the same order as they are defined in `layers_ordering.txt`.
 
 One thing that was important, but not obvious (at least to me), was that the lines to the polygons always had to be drawn before the polygon itself. The reason is that the polygons overlap the lines, and parts of the lines are therefore hidden behind the polygon. This made it seem like the rendering of the lines were bad because they were hidden behind the polygon, which has poor rendering on the sides.
 
