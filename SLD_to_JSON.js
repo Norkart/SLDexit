@@ -7,9 +7,6 @@ var xml2js = require('xml2js');
 var program = require('commander');
 
 var parser = new xml2js.Parser();
-var nrToParse = 1; //nr to check if last file is converted - if so the end of json file is written!
-var nrParsed = 0; //Nr of parsed files so far
-
 
 //-----------------------TODO-------------------------------------
 //ADD YOUR SPECIFIC INFO HERE BEFORE RUNNING THE CODE:
@@ -45,7 +42,6 @@ try {
     parseSingleFile(input, filesParsed);
   }
 } catch (e) {
-  console.log(e)
     console.error('Input is not file or directory');
     process.exit(1);
 }
@@ -148,9 +144,6 @@ var CONV_ICON_IMG = {
   'FKB_Kum.xml': 'circle-stroked-24'
   //, 'FKB_MastTele':,'FKB_Mast_Telesmast'
 };
-
-var FILES_WRITTEN = [];
-
 
 //translate zoom-scale to zoom-level
 function scale_to_zoom(scale) {
