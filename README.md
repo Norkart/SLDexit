@@ -1,11 +1,13 @@
 #  Converting from SLD to Mapbox GL
 
-`SLD_to_JSON.js` is a script for converting FKB-data in SLD-format to the Mapbox GL style specification.  
+`SLD_to_JSON.js` is a script for converting FKB[1]-data in SLD[2]-format to JSON-files according to the Mapbox GL style specification[3].
 The SLD-format is an XML-schema for describing the appearance of map layers, while the Mapbox GL specification is a JSON schema.
 
-The script is not a complete SLD to Mapbox GL converter, but it is supports the files we had that needed to be converted. Therefor there might be attributes in the SLD standard that is not supported, simply because it wasn't in any if the files we needed to convert.
+This script is not a complete SLD to Mapbox GL converter (yet?), but it supports the styles in use by Norkart that needed to be converted. Therefore there might be attributes in the SLD standard that is not supported, simply because it wasn't in any if the styles we needed to convert.
 
-## Content
+Although the script is tailored to fit our specific needs, the code should be able to handle most SLD files, and if you find cases where this isn't the case, feel free to submit a pull request.
+
+## Contents
 1. [The Mapbox GL specification](#The Mapbox GL specification)
 2. [The SLD-files and the conversion](#The SLD-files and the conversion)
 3. [Layout of the code](#Layout of the code)
@@ -46,11 +48,11 @@ Example of valid Mapbox GL format:
 }
 ```
 
-- Id is a *unique*
--	Type describes if it is a polygon (fill), line, text(symbol) or point(symbol)  
--	Source-layer refers to the vector tile layer-id
--	Minzoom and maxzoom defines what zoom level the style is visible
--	"paint» and "layout» are objects with different attributes that describes how the layer is drawn (how it will look)
+- ```id``` is *unique*
+-	```type``` describes if it is a polygon (fill), line, text(symbol) or point(symbol)  
+-	```source-layer``` refers to the vector tile layer-id
+-	```minzoom``` and ```maxzoom``` defines what zoom level the style is visible
+-	```paint``` and ```layout``` are objects with different attributes that describes how the layer is drawn (ie: how it will look)
 
 <a name="The SLD-files and the conversion"</a>
 ## The SLD-files and the conversion
@@ -59,10 +61,10 @@ Example of valid Mapbox GL format:
 To get the paint and layout attributes I used the part of the XML-schema that was within the 'rules' tag, and their valid inner tags:
 - **LineSymbolizer**, **TextSymbolizer**,**PolygonSymbolizer** and **PointSymbolizer**.
 
-I used xml2js.Parser() to read the XML. The disadvantage of this was that I could not look up directly the tag name, but had to iterate through the structure until the correct tag was found. This made the code less readable, had to learn how the layout for all the different versions of the SLD could be, to know where the tags could be found.
+I used xml2js.Parser() to read the XML. The disadvantage of this was that I could not directly look up the tag name, but had to iterate through the structure until the correct tag was found. This made the code less readable, as I had to learn how the layout for all the different versions of the SLD could be, to know where the tags could be found.
 
 #### Mapping from attribute name in SLD to Mapbox GL:
-The Xml-files, has as mentioned above, relevant info in a symbolizer-tag, that defines the "type"-attribute in Mapbox GL.
+The Xml-files has, as mentioned above, relevant info in a symbolizer-tag, that defines the "type"-attribute in Mapbox GL.
 
 The translation from symbolizer to type is:
 
@@ -102,7 +104,7 @@ Some of the attributes I did not find a translation for:
 
 
 #### Attribute values:
-An important part of the code was to extract the attribute values. I wrote a general method for this: `getCssParameters(symbTag, validAttrTag, type, outerTag)`. This method returns an array with attribute names and attribute values.
+An important part of the script was to extract the attribute values. I wrote a general method for this: `getCssParameters(symbTag, validAttrTag, type, outerTag)`. This method returns an array with attribute names and attribute values.
 
 The method is written based on the structure I could find in most of the SLD files I had. These files had the attribute information in a css-parameter-tagg, within a symbolizer-tag with an inner tag that defined the type, example `<stroke>` or `<fill>`.
 
@@ -199,11 +201,11 @@ In addition to the shadow files that were translated directly, I also made some 
 ## Unsolved problems
 
 I was not able to find how to draw Depression curves in the correct way.
-The photo the the left shows how it should have been drawn, and is drawn in SLD, while the photo to the right shows how it is drawn in Mapbox GL. It could be possible to solve this by using "line-image" in Mapbox GL.
+The image to the left shows how it should have been drawn, and is drawn in SLD, while the image to the right shows how it is drawn in Mapbox GL. It could be possible to solve this by using "line-image" in Mapbox GL.
 
 ![sld forsenkningskurve](images/forsekningskurver.png)
 
-Even when symbols are placed in the end of the JSON file, and should be drawn on top of everything else, some of the symbols are still hidden behind other elements. As far as I can tell, it is solved by adding `icon-allow-overlap:true` to the layers in question. An improvement to the script could be to add this automatically to all symbol layers, but this could maybe have an unwanted effect to some symbols.
+Even when symbols are placed in the end of the JSON file, and should be drawn on top of everything else, some of the symbols are still hidden behind other elements. As far as I can tell, this is solved by adding `icon-allow-overlap:true` to the layers in question. An improvement to the script could be to add this automatically to all symbol layers, but this could maybe have an unwanted effect to some symbols.
 
 Icons are not added to all layers of type **symbol**, and not images that should fill polygons,`fill-image`, since I was not sure what icons should be used. Mapbox do have sprite sheets available, but they do not cover everything.
 
@@ -228,6 +230,11 @@ Mapbox GL validator: https://github.com/mapbox/mapbox-gl-style-spec/blob/mb-page
 
 SLD specification: http://docs.geoserver.org/latest/en/user/styling/sld-cookbook/index.html#sld-cookbook
 
-# --
+# Contributors
 
-#### Written by: Mathilde Ørstavik, summer intern 2015.
+- Written by: Mathilde Ørstavik, summer intern, Norkart 2015.
+- Input from various employees at Norkart
+
+[1]: http://www.opengeospatial.org/standards/sld
+[2]: http://www.kartverket.no/kart/kartdata/vektorkart/fkb/
+[3]: https://www.mapbox.com/mapbox-gl-style-spec/
