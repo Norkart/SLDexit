@@ -487,9 +487,7 @@ function convertCssValue(cssValue, cssName) {
   //linejoin describes rendering with values; mitre/round/bevel
   if ((cssName === 'stroke' || cssName === 'stroke-linejoin' || cssName === 'stroke-linecap')) {
     //some colors are defined with #, others not.
-    //Split removes the # if it exists, so i always end up with the color value without the #
-    //linecap is a line-border with values; butt/round/square
-    return '#' + cssValue.split('#')[cssValue.split('#').length - 1];
+    return '#' + cssValue.replace('#', '');
   }
 
   if (cssName === 'stroke-width'
@@ -502,9 +500,8 @@ function convertCssValue(cssValue, cssName) {
   }
 
   if (cssName === 'fill') {
-    //some colors are defined with #, others not. Split removes the # if it exists,
-    //so i always end up with the color value without the #
-    return '#' + cssValue.split('#')[cssValue.split('#').length - 1];
+    //some colors are defined with #, others not.
+    return '#' + cssValue.replace('#', '');
   }
 
   if (cssName === 'opacity' || cssName === 'fill-opacity') {
