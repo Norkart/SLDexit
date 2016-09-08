@@ -4,7 +4,7 @@
   "description": "Script to convert from SLD (Styled Layer Descriptor) to Mapbox Style Specification",
   "main": "SLD_to_JSON.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -20,5 +20,8 @@
     "commander": "^2.9.0",
     "underscore": "^1.8.3",
     "xml2js": "^0.4.17"
+  },
+  "devDependencies": {
+    "mocha": "^3.0.2"
   }
 }

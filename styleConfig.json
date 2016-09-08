@@ -1,0 +1,9 @@
+{
+  "styleSpecName": "MapboxGLStyle2",
+  "sourceName": "my-source",
+  "sourceUrl": "http://path.to/style",
+  "type": "vector",
+  "glyphs": "mapbox://fontstack/{fontstack}/{range}.pbf",
+  "sprite": "https://www.mapbox.com/mapbox-gl-styles/sprites/sprite",
+  "background-color": "rgb(237, 234, 235)"
+}

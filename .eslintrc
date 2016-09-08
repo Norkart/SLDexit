@@ -14,7 +14,7 @@
         "no-trailing-spaces": 2,
         "space-infix-ops": 2,
         "space-before-blocks":2,
-        "keyword-spacing": ["error", {"before": true, "after": true}],
+        "keyword-spacing": [2, {"before": true, "after": true}],
         "quotes": [2, "single"],
         "comma-dangle": [2, "never"],
         "strict": [2, "global"],
