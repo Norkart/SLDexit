@@ -1,6 +1,10 @@
 var _ = require('underscore');
 var xml2js = require('xml2js');
 
+var convertCssName = require('./convertCssName');
+var getCssParameters = require('./getCssParameters');
+var getObjFromDiffAttr = require('./getObjFromDiffAttr');
+
 var parser = new xml2js.Parser();
 
 
@@ -33,9 +37,7 @@ var CONV_TYPE = {
   'PointSymbolizer': 'symbol'
 };
 
-//attributes that must be handeled different than the rest,
-//and has relevant info placed differently (inner tag)
-var DIFF_ATTR = ['stroke', 'opacity', 'fill', 'fill-opacity', 'font-size', 'stroke-width'];
+
 
 //attrbiutes that belongs to the paint-object in Mapbox gl
 var PAINT_ATTR = [
@@ -51,33 +53,10 @@ var LAYOUT_ATTR = [
   'line-join', 'symbol-placement', 'icon-image'
 ];
 
-//mapping from sld to mapbox
-var CONVERT_ATTR_NAME = {
-    'stroke': 'line-color',
-    'stroke-width': 'line-width',
-    'stroke-dasharray': 'line-dasharray',
-    'stroke-linejoin': 'line-join',
-    'opacity': 'line-opacity',
-    'PolygonSymbolizer-Fill-fill': 'fill-color',
-    'PolygonSymbolizer-Fill-fill-opacity': 'fill-opacity',
-    'PolygonSymbolizer-Fill-opacity': 'fill-opacity',
-    'font-size': 'text-size',
-    'font-family': 'text-font',
-    'Label': 'text-field',
-    'TextSymbolizer-Halo-Fill-fill': 'text-halo-color',
-    'TextSymbolizer-Fill-fill': 'text-color'
-};
 
-var PUNKT = 'circle-12'; //?
-//get the icon-image
-var CONV_ICON_IMG = {
-  'FKB_Gravplass.xml': 'religious-christian-12',
-  'FKB_BautaStatue.xml': 'monument-12',
-  'FKB_Bensinpumpe.xml': 'fuel-24',
-  'FKB_Broenn.xml': '',
-  'FKB_Kum.xml': 'circle-stroked-24'
-  //, 'FKB_MastTele':,'FKB_Mast_Telesmast'
-};
+
+
+
 
 
 
@@ -104,7 +83,7 @@ function createStyle(layers, styleConfig) {
 
 
 //translate zoom-scale to zoom-level
-function scale_to_zoom(scale) {
+function scaleToZoom(scale) {
   if (scale > 500000000) {
     return 0;
   }
@@ -168,11 +147,6 @@ function scale_to_zoom(scale) {
   return 20;
 }
 
-
-
-
-
-
 function parseMultipleSlds(styles, callback) {
 
     var parsed = [];
@@ -213,8 +187,8 @@ function parseSld(data, filename, callback) {
       for (j = 0; j < rules.length; j++) {
         rule = rules[j];
         var name = rule.Name[0];
-        maxzoom = scale_to_zoom(rule.MaxScaleDenominator[0]);
-        minzoom = scale_to_zoom(rule.MinScaleDenominator[0]);
+        maxzoom = scaleToZoom(rule.MaxScaleDenominator[0]);
+        minzoom = scaleToZoom(rule.MinScaleDenominator[0]);
 
         //Checks if the tag is valid, and if it is: saves the object and type-name
         var i;
@@ -235,7 +209,7 @@ function parseSld(data, filename, callback) {
 }
 
 //called for each symbolizer
-//this runs the rest of the methods through make_JSON and so on, and writes the objects to file
+//this runs the rest of the methods through makeJSON and so on, and writes the objects to file
 function writeJSON(symbTag, type, name, minzoom, maxzoom, filename) {
   //console.log(type, name)
   var errorFiles = [];
@@ -254,26 +228,22 @@ function writeJSON(symbTag, type, name, minzoom, maxzoom, filename) {
         obj[key] = cssObj[key];
         delete cssObj[key];
       }
-      var styleObj1 = make_JSON(name, convType, cssObj, minzoom, maxzoom);
-      var styleObj2 = make_JSON(name, 'line', obj, minzoom, maxzoom);
-      var print1 = JSON.stringify(styleObj1, null, 4);
-      var print2 = JSON.stringify(styleObj2, null, 4);
+      var styleObj1 = makeJSON(name, convType, cssObj, minzoom, maxzoom);
+      var styleObj2 = makeJSON(name, 'line', obj, minzoom, maxzoom);
       console.log('Writing converted');
       return [styleObj1, styleObj2];
     } else {
-      var styleObj = make_JSON(name, convType, cssObj, minzoom, maxzoom);
+      var styleObj = makeJSON(name, convType, cssObj, minzoom, maxzoom);
       return styleObj;
     }
   } catch (err) {
-
-    //fs.appendFile(RESULT_PATH + '\\errorFiles.txt', file + '-' + name + '\n');
     throw new Error(filename + '-' + name);
   }
 }
 
 //this makes the layout of each mapbox-layout-object
 //name=file name, css is an object [cssName: cssValue]pairs, cssName is ie stroke, stroke-width
-function make_JSON(name, type, cssObj, minzoom, maxzoom) {
+function makeJSON(name, type, cssObj, minzoom, maxzoom) {
   var attr = getPaintAndLayoutAttr(cssObj);
   var paint = attr[0];
   var layout = attr[1];
@@ -332,221 +302,6 @@ function getSymbolizersObj(symbTag, type, file) {
   return cssObj;
 }
 
-function getCssParameters(symbTag, validAttrTag, type, outerTag) {
-  var cssArr = [];
-  if (outerTag === undefined) {
-    var allCssArray = symbTag[0][validAttrTag][0]['CssParameter'];
-  } else {
-    var allCssArray = symbTag[0][outerTag][0][validAttrTag][0]['CssParameter'];
-  }
-
-  var nrOfCssTags = Object.keys(allCssArray).length;
-  var j;
-  for (j = 0; j < nrOfCssTags; j++) { //for all cssParameters
-    var cssTag = allCssArray[j];
-    var conv = convert_css_parameter(cssTag, validAttrTag, type, outerTag);
-    cssArr.push(conv); //array with arrays of cssName and cssValue
-  }
-  return cssArr;
-}
-
-//gets called if attribute-values are not placed as the rest and therefor needs
-//a different method the get the css-value
-function getObjFromDiffAttr(tagName, type, symbTag, file) {
-  var obj = {};
-  if (tagName === 'Label') {
-    obj = getLabelObj(tagName, type, symbTag, obj);
-  } else if (tagName === 'Fill') { //some fill-attributes are defined differently than the rest
-    obj['fill-image'] = 'SPRITE-NAME';
-  } else if (tagName === 'Halo') {
-    obj = getHaloObj(tagName, type, symbTag, obj);
-  } else if (tagName === 'Geometry') {
-    obj = getGeometryObj(symbTag, obj);
-  } else if (tagName === 'Graphic') {
-    obj = getGraphicObj(file, symbTag, type, obj);
-  }
-  return obj;
-}
-
-function getLabelObj(tagName, type, symbTag, obj) {
-  var convertedTagName = convertCssName(tagName, tagName, type);
-  obj[convertedTagName] = '{' + symbTag[0].Label[0]['ogc:PropertyName'][0] + '}';
-  return obj;
-}
-
-function getHaloObj(tagName, type, symbTag, obj) {
-  var j;
-  for (j = 0; j < Object.keys(symbTag[0].Halo[0]).length; j++) {
-    var innerTagName = (Object.keys(symbTag[0].Halo[0]))[j];
-
-    if (innerTagName === 'Radius') {
-      var value = symbTag[0].Halo[0]['Radius'][0]['ogc:Literal'][0];
-      obj['text-halo-width'] = parseInt(value, 10);
-    } else if (innerTagName === 'Fill') {
-      //array with key-value pair to add in obj
-      var cssArray = getCssParameters(symbTag, innerTagName, type, 'Halo');
-      var k;
-      for (k = 0; k < cssArray.length; k++) {
-        obj[cssArray[k][0]] = cssArray[k][1];
-      }
-    } else {
-      console.log('translation of: ' + innerTagName + ' is not added');
-    }
-  }
-  return obj;
-}
-
-function getGeometryObj(symbTag, obj) {
-  if (symbTag[0].Geometry[0]['ogc:Function'][0].$.name === 'vertices') {
-    obj['icon-image'] = PUNKT;
-  } else {
-    console.log('Cannot convert attribute value: ' + symbTag[0].Geometry[0]['ogc:Function'][0].$.name + ', for tag Geometry');
-  }
-  return obj;
-}
-function getGraphicObj(file, symbTag, type, obj) {
-  var fillColor;
-  try {
-    fillColor = symbTag[0].Graphic[0].Mark[0].Fill[0].CssParameter[0]['ogc:Function'][0]['ogc:Literal'][1];
-    var color = '#' + fillColor;
-    var regInteger = /^\d+$/;
-    if (!regInteger.test(fillColor)) {
-      //console.log('Different graphic tag: '+fillColor+ ' from file: '+ file);
-    } else {
-      obj['icon-color'] = color;
-    }
-  } catch (err) {
-    console.log('Could not set fill color for graphic tag in file: ' + file);
-  }
-  //Sets size
-  try {
-    var size = symbTag[0].Graphic[0].Size[0];
-      obj['icon-size'] = parseInt(size, 10);
-  } catch (err) {
-      console.log('Size does not exist in this graphic-tag');
-  }
-  var img = getIconImage(file);
-  if (img !== undefined) {
-    obj['icon-image'] = img;
-  } else {
-    obj['icon-image'] = 'circle-12';
-  }
-  return obj;
-}
-
-function getIconImage(file) {
-  try {
-    var img = CONV_ICON_IMG[file];
-  } catch (err) {
-    console.log('Unknown icon');
-    img = undefined;
-  }
-  return img;
-}
-
-//returns an array with css parameter name and value, correctly converted
-//validAttrTag=name of outer tag, example stroke, fill, label
-function convert_css_parameter(cssTag, ValidAttrTag, type, outerTag) {
-  var cssName = cssTag['$'].name;
-  var cssValue;
-  var regLetters = /^[a-zA-Z]+$/;
-  var regInt = /^\d+$/;
-  var regDouble = /^[0-9]+([\,\.][0-9]+)?$/g;
-  var regNumbers = /^\d+$/;
-
-  try {
-    var cssColorValue = cssTag['_'].split('#')[1];
-    //testing if the value is a color:
-    if ((DIFF_ATTR.indexOf(cssName)) > -1
-      && !(regInt.test(cssTag['_']))
-      && !(regDouble.test(cssTag['_']))
-      && !regLetters.test(cssColorValue)
-      && !regNumbers.test(cssColorValue) ) {//Check if different type of attribute
-      cssValue = (cssTag['ogc:Function'][0]['ogc:Literal'][1]);
-    } else {
-      cssValue = cssTag['_'];
-    }
-  } catch (err) {
-    if ((DIFF_ATTR.indexOf(cssName)) > -1
-      && !(regInt.test(cssTag['_']))
-      && !(regDouble.test(cssTag['_']))) {//Check if different type of attribute
-      cssValue = (cssTag['ogc:Function'][0]['ogc:Literal'][1]);
-    } else {
-      cssValue = cssTag['_'];
-    }
-  }
-  var convertedCssName = convertCssName(cssName, ValidAttrTag, type, outerTag);
-  var convertedCssValue = convertCssValue(cssValue, cssName);
-  return [convertedCssName, convertedCssValue];
-}
-
-//Makes sure the attribute values are returned in the correct type and defined
-//correctly (ie colors with a # in front)
-function convertCssValue(cssValue, cssName) {
-
-  //linejoin describes rendering with values; mitre/round/bevel
-  if ((cssName === 'stroke' || cssName === 'stroke-linejoin' || cssName === 'stroke-linecap')) {
-    //some colors are defined with #, others not.
-    return '#' + cssValue.replace('#', '');
-  }
-
-  if (cssName === 'stroke-width'
-    || cssName === 'stroke-opacity'
-    || cssName === 'stroke--dashoffset') {
-    return parseFloat(cssValue);
-  }
-  if (cssName === 'stroke-dasharray') {
-    return cssValue.split(' ').map(Number);
-  }
-
-  if (cssName === 'fill') {
-    //some colors are defined with #, others not.
-    return '#' + cssValue.replace('#', '');
-  }
-
-  if (cssName === 'opacity' || cssName === 'fill-opacity') {
-    return parseFloat(cssValue);
-  }
-
-  if (cssName === 'font-size') {
-    return parseFloat(cssValue);
-  }
-
-  return cssValue;
-
-}
-
-function convertCssName(cssName, validAttrTag, type, outerTag) {
-  var newName;
-  if (cssName === 'fill'
-    || cssName === 'fill-opacity'
-    || cssName === 'opacity'
-    && validAttrTag === 'Fill') {
-    if (outerTag === undefined) {
-      newName = CONVERT_ATTR_NAME[type + '-' + validAttrTag + '-' + cssName];
-
-    } else {
-      var newName = CONVERT_ATTR_NAME[type + '-' + outerTag + '-' + validAttrTag + '-' + cssName];
-      if (newName === undefined) {
-        console.log(
-          'could not convert the attribute name: ' + type + '-' +
-          outerTag + '-' + validAttrTag + '-' + cssName
-        );
-      }
-    }
-    return newName;
-  } else {
-    var newName = CONVERT_ATTR_NAME[cssName];
-    //List to print those I know cannot be translated
-    var ACCEPTED = ['font-weight', 'font-style'];
-    //skip printing the ones I know are not translated
-    if (newName === undefined && ACCEPTED.indexOf(newName) > -1) {
-      console.log('could not convert the attribute name: ' + cssName);
-    }
-    return newName;
-  }
-}
-
 function convertType(type) {
   try {
     return CONV_TYPE[type];
@@ -555,7 +310,7 @@ function convertType(type) {
   }
 }
 
-//Makes paint object og layout object
+//Makes paint object and layout object
 function getPaintAndLayoutAttr(cssObj) {
   var paint = {};
   var layout = {};
