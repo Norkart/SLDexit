@@ -4,6 +4,8 @@ var xml2js = require('xml2js');
 var convertCssName = require('./convertCssName');
 var getCssParameters = require('./getCssParameters');
 var getObjFromDiffAttr = require('./getObjFromDiffAttr');
+var scaleToZoom = require('./scaleToZoom');
+
 
 var parser = new xml2js.Parser();
 
@@ -26,8 +28,11 @@ var VALID_ATTR_TAGS = [
   'Geometry',
   'Graphic'
 ];
+
+
 //attribute-tags that must be handeled different than the rest
 var DIFF_ATTR_TAG = ['Label', 'Halo', 'Mark', 'Geometry', 'Graphic'];
+
 
 //mapping from sld symbolizer til mapbox GL type-attribute
 var CONV_TYPE = {
@@ -38,7 +43,6 @@ var CONV_TYPE = {
 };
 
 
-
 //attrbiutes that belongs to the paint-object in Mapbox gl
 var PAINT_ATTR = [
   'line-color', 'line-width', 'line-dasharray', 'line-opacity',
@@ -47,17 +51,12 @@ var PAINT_ATTR = [
   'icon-color', 'icon-opacity', 'icon-size'
 ];
 
+
 //attributes that belongs to the layout-object in Mapbox gl
 var LAYOUT_ATTR = [
   'text-field', 'text-font', 'text-max-size', 'text-max-witdth',
   'line-join', 'symbol-placement', 'icon-image'
 ];
-
-
-
-
-
-
 
 
 function createStyle(layers, styleConfig) {
@@ -79,72 +78,6 @@ function createStyle(layers, styleConfig) {
 
   style.layers = style.layers.concat(layers);
   return style;
-}
-
-
-//translate zoom-scale to zoom-level
-function scaleToZoom(scale) {
-  if (scale > 500000000) {
-    return 0;
-  }
-  if (scale > 250000000) {
-    return 1;
-  }
-  if (scale > 150000000) {
-    return 2;
-  }
-  if (scale > 70000000) {
-    return 3;
-  }
-  if (scale > 35000000) {
-    return 4;
-  }
-  if (scale > 15000000) {
-    return 5;
-  }
-  if (scale > 10000000) {
-    return 6;
-  }
-  if (scale > 4000000) {
-    return 7;
-  }
-  if (scale > 2000000) {
-    return 8;
-  }
-  if (scale > 1000000) {
-    return 9;
-  }
-  if (scale > 500000) {
-    return 10;
-  }
-  if (scale > 250000) {
-    return 11;
-  }
-  if (scale > 150000) {
-    return 12;
-  }
-  if (scale > 70000) {
-    return 13;
-  }
-  if (scale > 35000) {
-    return 14;
-  }
-  if (scale > 15000) {
-    return 15;
-  }
-  if (scale > 8000) {
-    return 16;
-  }
-  if (scale > 4000) {
-    return 17;
-  }
-  if (scale > 2000) {
-    return 18;
-  }
-  if (scale > 1000) {
-    return 19;
-  }
-  return 20;
 }
 
 function parseMultipleSlds(styles, callback) {
@@ -245,8 +178,8 @@ function writeJSON(symbTag, type, name, minzoom, maxzoom, filename) {
 //name=file name, css is an object [cssName: cssValue]pairs, cssName is ie stroke, stroke-width
 function makeJSON(name, type, cssObj, minzoom, maxzoom) {
   var attr = getPaintAndLayoutAttr(cssObj);
-  var paint = attr[0];
-  var layout = attr[1];
+  var paint = attr.paint;
+  var layout = attr.layout;
 
   //Removing default-values, they are redundant
   if (Object.keys(paint).indexOf('fill-opacity') > -1) {
@@ -283,10 +216,7 @@ function getSymbolizersObj(symbTag, type, file) {
        //if values are not in the regular place
       if (DIFF_ATTR_TAG.indexOf(tagName) > -1 ||
           ((tagName === 'Fill') && symbTag[0].Fill[0].GraphicFill !== undefined)) {
-        var obj = getObjFromDiffAttr(tagName, type, symbTag, file);
-        for (var key in obj) {
-          cssObj[key] = obj[key];
-        }
+        cssObj = _.extend(cssObj, getObjFromDiffAttr(tagName, type, symbTag, file));
       } else {//if common cssParameterTags
         //array with key-value pairs to add to cssObj
         var cssArray = getCssParameters(symbTag, tagName, type);
@@ -312,21 +242,16 @@ function convertType(type) {
 
 //Makes paint object and layout object
 function getPaintAndLayoutAttr(cssObj) {
-  var paint = {};
-  var layout = {};
-  var i;
-  for (i = 0; i < Object.keys(cssObj).length; i++) {// for all in cssObj
-    var key = Object.keys(cssObj)[i];//becomes line-color
-    var value = cssObj[key];
+  return _.reduce(cssObj, function (acc, value, key) {
     if (PAINT_ATTR.indexOf(key) > -1) {
-      paint[key] = value;
+      acc.paint[key] = value;
     } else if (LAYOUT_ATTR.indexOf(key) > -1) {
-      layout[key] = value;
+      acc.layout[key] = value;
     } else {
       console.log('The css-key: ' + key + ', is not a valid paint or layout attribute');
     }
-  }
-  return [paint, layout];
+    return acc;
+  }, {paint: {}, layout: {}});
 }
 
 module.exports = {
